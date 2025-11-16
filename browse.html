@@ -80,18 +80,7 @@
             </div>
 
             <!-- Comic Grid -->
-            <div class="comic-grid-large" id="comicGrid">
-                <!-- Populated by JavaScript -->
-                <!-- Example card structure for JS to populate:
-                <div class="comic-card">
-                    <a href="comic-detail.html?id=1">
-                        <img src="images/comic1.jpg" alt="Comic Title">
-                        <h3 class="comic-title">Comic Title</h3>
-                        <p class="comic-price">$9.99</p>
-                    </a>
-                </div>
-                -->
-            </div>
+            <div class="comic-grid-large" id="comicGrid"></div>
         </div>
     </section>
 
@@ -99,7 +88,6 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <p>&copy; 2024 ComicVerse Hub. All rights reserved.</p>
                 <div class="social-links">
                     <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
                     <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
@@ -110,7 +98,84 @@
         </div>
     </footer>
 
+    <!-- JS Files -->
     <script src="js/comics.js"></script>
-    <script src="js/main.js"></script>
+    <script>
+    // Display Browse Comics
+    const comicGrid = document.getElementById("comicGrid");
+    const publisherFilter = document.getElementById("publisherFilter");
+    const genreFilter = document.getElementById("genreFilter");
+    const sortFilter = document.getElementById("sortFilter");
+    const resetBtn = document.getElementById("resetFilters");
+    const resultsCount = document.getElementById("resultsCount");
+
+    function displayComicsList(filteredComics) {
+        comicGrid.innerHTML = "";
+        resultsCount.textContent = filteredComics.length;
+
+        filteredComics.forEach(comic => {
+            const card = document.createElement("div");
+            card.className = "comic-card";
+
+            card.innerHTML = `
+                <a href="comic-detail.html?id=${comic.id}">
+                    <img src="${comic.image}" alt="${comic.title}">
+                    <h3 class="comic-title">${comic.title}</h3>
+                    <p class="comic-price">$${comic.price}</p>
+                </a>
+            `;
+            comicGrid.appendChild(card);
+        });
+    }
+
+    function applyFilters() {
+        let filtered = [...comics];
+
+        // Filter by publisher
+        if (publisherFilter.value !== "all") {
+            filtered = filtered.filter(c => c.publisher === publisherFilter.value);
+        }
+
+        // Filter by genre
+        if (genreFilter.value !== "all") {
+            filtered = filtered.filter(c => c.genre === genreFilter.value);
+        }
+
+        // Sort
+        switch(sortFilter.value) {
+            case "title":
+                filtered.sort((a,b) => a.title.localeCompare(b.title));
+                break;
+            case "price-low":
+                filtered.sort((a,b) => a.price - b.price);
+                break;
+            case "price-high":
+                filtered.sort((a,b) => b.price - a.price);
+                break;
+            case "rating":
+                filtered.sort((a,b) => b.rating - a.rating);
+                break;
+            case "date":
+                filtered.sort((a,b) => new Date(b.releaseDate) - new Date(a.releaseDate));
+                break;
+        }
+
+        displayComicsList(filtered);
+    }
+
+    // Event listeners
+    publisherFilter.addEventListener("change", applyFilters);
+    genreFilter.addEventListener("change", applyFilters);
+    sortFilter.addEventListener("change", applyFilters);
+    resetBtn.addEventListener("click", () => {
+        publisherFilter.value = "all";
+        genreFilter.value = "all";
+        sortFilter.value = "title";
+        applyFilters();
+    });
+
+    // Initial display
+    document.addEventListener("DOMContentLoaded", applyFilters);
+    </script>
 </body>
 </html>
