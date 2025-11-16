@@ -1,20 +1,21 @@
 // Main JavaScript for ComicVerse Hub
+// ===================================
 
 // ========== UTILITY FUNCTIONS ==========
 
-// Get cart from localStorage
+// Function to get cart from localStorage
 function getCart() {
     const cart = localStorage.getItem('comicverseCart');
     return cart ? JSON.parse(cart) : [];
 }
 
-// Save cart to localStorage
+// Function to save cart to localStorage
 function saveCart(cart) {
     localStorage.setItem('comicverseCart', JSON.stringify(cart));
-    updateCartCount();
+    updateCartCount(); // Update cart count badge
 }
 
-// Update cart count badge
+// Function to update cart count badge
 function updateCartCount() {
     const cart = getCart();
     const count = cart.reduce((total, item) => total + item.quantity, 0);
@@ -22,7 +23,7 @@ function updateCartCount() {
     badges.forEach(badge => badge.textContent = count);
 }
 
-// Add item to cart
+// Function to add a comic to the cart
 function addToCart(comicId) {
     const comic = comics.find(c => c.id === comicId);
     if (!comic) return;
@@ -47,7 +48,7 @@ function addToCart(comicId) {
     showNotification(`${comic.title} added to cart!`);
 }
 
-// Show notification
+// Function to show temporary notification
 function showNotification(message) {
     const notification = document.createElement('div');
     notification.className = 'notification';
@@ -75,6 +76,7 @@ function showNotification(message) {
 }
 
 // ========== MOBILE MENU ==========
+
 document.addEventListener('DOMContentLoaded', () => {
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
@@ -94,19 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ========== HOMEPAGE FUNCTIONALITY ==========
+
 if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
     document.addEventListener('DOMContentLoaded', () => {
-        // Initialize carousel
-        initCarousel();
-        
-        // Load new releases
-        loadNewReleases();
-        
-        // Load popular series
-        loadPopularSeries();
+        initCarousel();       // Initialize homepage carousel
+        loadNewReleases();    // Load featured comics
+        loadPopularSeries();  // Load popular comics
     });
 }
 
+// Function to initialize carousel
 function initCarousel() {
     let currentSlide = 0;
     const slides = document.querySelectorAll('.carousel-slide');
@@ -116,7 +115,7 @@ function initCarousel() {
 
     if (!slides.length) return;
 
-    // Create indicators
+    // Create indicators dynamically
     slides.forEach((_, index) => {
         const indicator = document.createElement('span');
         indicator.className = index === 0 ? 'active' : '';
@@ -124,6 +123,7 @@ function initCarousel() {
         indicators.appendChild(indicator);
     });
 
+    // Function to navigate to a specific slide
     function goToSlide(n) {
         slides[currentSlide].classList.remove('active');
         indicators.children[currentSlide].classList.remove('active');
@@ -134,13 +134,15 @@ function initCarousel() {
         indicators.children[currentSlide].classList.add('active');
     }
 
+    // Previous / Next buttons
     prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
     nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
 
-    // Auto-advance carousel
+    // Auto-advance carousel every 5 seconds
     setInterval(() => goToSlide(currentSlide + 1), 5000);
 }
 
+// Function to load new releases on homepage
 function loadNewReleases() {
     const container = document.getElementById('newReleases');
     if (!container) return;
@@ -149,17 +151,16 @@ function loadNewReleases() {
     container.innerHTML = featuredComics.map(comic => createComicCard(comic)).join('');
 }
 
+// Function to load popular series on homepage
 function loadPopularSeries() {
     const container = document.getElementById('popularSeries');
     if (!container) return;
 
-    const popularComics = comics
-        .sort((a, b) => b.rating - a.rating)
-        .slice(0, 4);
-    
+    const popularComics = comics.sort((a, b) => b.rating - a.rating).slice(0, 4);
     container.innerHTML = popularComics.map(comic => createComicCard(comic)).join('');
 }
 
+// Function to create a comic card HTML
 function createComicCard(comic) {
     return `
         <div class="comic-card" onclick="window.location.href='comic-detail.html?id=${comic.id}'">
@@ -180,6 +181,7 @@ function createComicCard(comic) {
 }
 
 // ========== BROWSE PAGE FUNCTIONALITY ==========
+
 if (window.location.pathname.includes('browse.html')) {
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -189,9 +191,9 @@ if (window.location.pathname.includes('browse.html')) {
             document.getElementById('publisherFilter').value = publisherParam;
         }
         
-        loadComics();
-        
-        // Add event listeners for filters
+        loadComics();  // Initial load
+
+        // Event listeners for filters
         document.getElementById('publisherFilter').addEventListener('change', loadComics);
         document.getElementById('genreFilter').addEventListener('change', loadComics);
         document.getElementById('sortFilter').addEventListener('change', loadComics);
@@ -199,23 +201,22 @@ if (window.location.pathname.includes('browse.html')) {
     });
 }
 
+// Function to load comics with filters applied
 function loadComics() {
     const publisherFilter = document.getElementById('publisherFilter').value;
     const genreFilter = document.getElementById('genreFilter').value;
     const sortFilter = document.getElementById('sortFilter').value;
     
     let filteredComics = [...comics];
-    
-    // Apply filters
+
     if (publisherFilter !== 'all') {
         filteredComics = filteredComics.filter(c => c.publisher === publisherFilter);
     }
-    
+
     if (genreFilter !== 'all') {
         filteredComics = filteredComics.filter(c => c.genre === genreFilter);
     }
-    
-    // Apply sorting
+
     switch(sortFilter) {
         case 'title':
             filteredComics.sort((a, b) => a.title.localeCompare(b.title));
@@ -233,14 +234,15 @@ function loadComics() {
             filteredComics.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
             break;
     }
-    
+
     const container = document.getElementById('comicGrid');
     const resultsCount = document.getElementById('resultsCount');
-    
+
     resultsCount.textContent = filteredComics.length;
     container.innerHTML = filteredComics.map(comic => createComicCard(comic)).join('');
 }
 
+// Function to reset filters
 function resetFilters() {
     document.getElementById('publisherFilter').value = 'all';
     document.getElementById('genreFilter').value = 'all';
@@ -249,6 +251,7 @@ function resetFilters() {
 }
 
 // ========== DETAIL PAGE FUNCTIONALITY ==========
+
 if (window.location.pathname.includes('comic-detail.html')) {
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -263,13 +266,14 @@ if (window.location.pathname.includes('comic-detail.html')) {
     });
 }
 
+// Function to load comic detail page
 function loadComicDetail(comicId) {
     const comic = comics.find(c => c.id === comicId);
     if (!comic) {
         window.location.href = 'browse.html';
         return;
     }
-    
+
     const container = document.getElementById('comicDetail');
     container.innerHTML = `
         <div class="detail-image">
@@ -306,39 +310,38 @@ function loadComicDetail(comicId) {
     `;
 }
 
+// Function to load related comics
 function loadRelatedComics(currentComicId) {
     const currentComic = comics.find(c => c.id === currentComicId);
     if (!currentComic) return;
-    
+
     const relatedComics = comics
         .filter(c => c.id !== currentComicId && c.publisher === currentComic.publisher)
         .slice(0, 4);
-    
+
     const container = document.getElementById('relatedComics');
     container.innerHTML = relatedComics.map(comic => createComicCard(comic)).join('');
 }
 
 // ========== CART PAGE FUNCTIONALITY ==========
+
 if (window.location.pathname.includes('cart.html')) {
     document.addEventListener('DOMContentLoaded', () => {
         loadCartItems();
-        
+
         const checkoutBtn = document.getElementById('checkoutBtn');
-        if (checkoutBtn) {
-            checkoutBtn.addEventListener('click', handleCheckout);
-        }
-        
+        if (checkoutBtn) checkoutBtn.addEventListener('click', handleCheckout);
+
         const modalClose = document.getElementById('modalClose');
-        if (modalClose) {
-            modalClose.addEventListener('click', closeModal);
-        }
+        if (modalClose) modalClose.addEventListener('click', closeModal);
     });
 }
 
+// Function to load cart items on cart page
 function loadCartItems() {
     const cart = getCart();
     const container = document.getElementById('cartItems');
-    
+
     if (cart.length === 0) {
         container.innerHTML = `
             <div class="empty-cart">
@@ -348,10 +351,10 @@ function loadCartItems() {
                 <a href="browse.html" class="btn-primary">Browse Comics</a>
             </div>
         `;
-        updateCartSummary(0, 0, 0);
+        updateCartSummary(0, 0, 0, 0);
         return;
     }
-    
+
     container.innerHTML = cart.map(item => `
         <div class="cart-item">
             <img src="${item.image}" alt="${item.title}" class="cart-item-image">
@@ -370,14 +373,15 @@ function loadCartItems() {
             </div>
         </div>
     `).join('');
-    
+
     calculateCartTotal();
 }
 
+// Function to update quantity of a cart item
 function updateQuantity(itemId, change) {
     const cart = getCart();
     const item = cart.find(i => i.id === itemId);
-    
+
     if (item) {
         item.quantity += change;
         if (item.quantity <= 0) {
@@ -389,6 +393,7 @@ function updateQuantity(itemId, change) {
     }
 }
 
+// Function to remove item from cart
 function removeFromCart(itemId) {
     let cart = getCart();
     cart = cart.filter(item => item.id !== itemId);
@@ -397,16 +402,18 @@ function removeFromCart(itemId) {
     showNotification('Item removed from cart');
 }
 
+// Function to calculate cart total
 function calculateCartTotal() {
     const cart = getCart();
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const tax = subtotal * 0.10;
     const shipping = cart.length > 0 ? 5.99 : 0;
     const total = subtotal + tax + shipping;
-    
+
     updateCartSummary(subtotal, tax, shipping, total);
 }
 
+// Function to update cart summary section
 function updateCartSummary(subtotal, tax, shipping, total) {
     document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
     document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
@@ -414,57 +421,52 @@ function updateCartSummary(subtotal, tax, shipping, total) {
     document.getElementById('total').textContent = `$${total.toFixed(2)}`;
 }
 
+// Function to handle checkout
 function handleCheckout() {
     const cart = getCart();
     if (cart.length === 0) {
         showNotification('Your cart is empty!');
         return;
     }
-    
+
     const modal = document.getElementById('checkoutModal');
     const modalDetails = document.getElementById('modalDetails');
-    
-    const itemsList = cart.map(item => 
+
+    const itemsList = cart.map(item =>
         `<p>✓ ${item.title} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}</p>`
     ).join('');
-    
+
     modalDetails.innerHTML = itemsList;
     modal.classList.add('active');
-    
-    // Clear cart
+
+    // Clear cart after checkout
     localStorage.removeItem('comicverseCart');
     updateCartCount();
 }
 
+// Function to close modal
 function closeModal() {
     const modal = document.getElementById('checkoutModal');
     modal.classList.remove('active');
     window.location.href = 'index.html';
 }
 
-// Add CSS animations
+// ========== CSS ANIMATIONS ==========
+
 const style = document.createElement('style');
 style.textContent = `
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(100px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(100px);
-        }
-    }
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(100px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(100px); }
+}
 `;
 document.head.appendChild(style);
+
+// ======================================
+// End of ComicVerse Hub JavaScript File
+// ======================================

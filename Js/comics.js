@@ -39,7 +39,6 @@ const comics = [
         releaseDate: "2024-10-18",
         featured: false
     },
-    
     {
         id: 5,
         title: "The Flash: Speed Force #1",
@@ -92,8 +91,6 @@ const comics = [
         releaseDate: "2024-10-12",
         featured: true
     },
-    
-    
     {
         id: 11,
         title: "Black Panther #1",
@@ -120,8 +117,6 @@ const comics = [
         releaseDate: "2024-10-30",
         featured: false
     },
-    
-    
     {
         id: 15,
         title: "Green Lantern #1",
@@ -201,3 +196,31 @@ const comics = [
         featured: false
     }
 ];
+
+// Function to display comics on a webpage
+function displayComics() {
+    const container = document.getElementById("comic-container");
+    container.innerHTML = ""; // Clear container before adding
+
+    comics.forEach(comic => {
+        const comicCard = document.createElement("div");
+        comicCard.className = "comic-card";
+
+        comicCard.innerHTML = `
+            <img src="${comic.image}" alt="${comic.title}" class="comic-image">
+            <h3 class="comic-title">${comic.title}</h3>
+            <p class="comic-synopsis">${comic.synopsis}</p>
+            <p class="comic-details">
+                <strong>Publisher:</strong> ${comic.publisher} |
+                <strong>Genre:</strong> ${comic.genre} |
+                <strong>Price:</strong> $${comic.price} |
+                <strong>Rating:</strong> ${comic.rating} ⭐
+            </p>
+        `;
+
+        container.appendChild(comicCard);
+    });
+}
+
+// Display comics when page loads
+document.addEventListener("DOMContentLoaded", displayComics);
